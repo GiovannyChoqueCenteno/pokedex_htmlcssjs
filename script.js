@@ -1,10 +1,9 @@
-
-const form = document.querySelector("#form")
-const pokeName = document.querySelector("[data-poke-name]")
-const pokeImg = document.querySelector("[data-poke-img]")
-const pokeId = document.querySelector("[data-poke-id]")
-const pokeStats = document.querySelector("[data-poke-stats]")
-const pokeTypes = document.querySelector("[data-poke-types]")
+const form = document.querySelector('form')
+const pokeImg = document.querySelector('[data-poke-img]')
+const pokeName = document.querySelector('[data-poke-name]')
+const pokeId = document.querySelector('[data-poke-id]')
+const pokeTypes = document.querySelector('[data-poke-types]')
+const pokeStats = document.querySelector('[data-poke-stats]')
 
 
 const typeColors = {
@@ -23,68 +22,65 @@ const typeColors = {
     ground: '#D2B074',
     dragon: '#DA627D',
     steel: '#1D8A99',
-    dark : '#000',
+    dark: '#000',
     fighting: '#2F2F2F',
     default: '#2A1A1F',
 };
 
-
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', function (e) {
     e.preventDefault()
-    const {value}  = e.target.pokemon;
-    fetch(`https://pokeapi.co/api/v2/pokemon/${value.toLowerCase()}`). 
-        then(res  => res.json()).
-        then(res  => renderPokemonData(res)).
-        catch(_=> renderError())
-} ) 
+    const { value } = e.target.pokemon;
+    fetch(`https://pokeapi.co/api/v2/pokemon/${value.toLowerCase()}`).
+        then(res => res.json()).then(res => renderData(res))
+        .catch( _ => renderNotFound())
+})
 
-const renderError = ()=>{
-    pokeName.textContent = "Pokemon no encontrado"
-    pokeImg.setAttribute("src" ,"./poke-shadow.png")
-    pokeImg.style.background = null;
+const renderNotFound = ()=>{
+    pokeName.textContent = 'No encontrado'
+    pokeImg.setAttribute('src' , './poke-shadow.png')
     pokeStats.innerHTML = ''
     pokeTypes.innerHTML = ''
     pokeId.textContent = ''
-} 
-const renderPokemonData  = data =>{
-    const {types,stats ,name , id,sprites: { front_default} } = data;
-    pokeName.textContent = name;
-    pokeImg.setAttribute("src" ,front_default );
-    pokeId.textContent = `N°${id}`
-    setCardColor(types)
-    renderPokemonTypes(types)
-    renderPokemonStats(stats)
+    pokeImg.style.background = 'white'
 }
 
-const setCardColor=(types)=>{
-    console.log(types[0].type.name)
-    const colorOne = typeColors[types[0].type.name]
-    const colorTwo = types[1] ?  typeColors[types[1].type.name] : typeColors.default
-    pokeImg.style.background = `radial-gradient(${colorTwo} 33% , ${colorOne} 33% )`
+
+const renderData = (pokemon) => {
+    console.log(pokemon)
+    const { id, stats, name, types, sprites: { front_default } } = pokemon;
+    pokeImg.setAttribute('src', front_default)
+    const color1 = typeColors[types[0].type.name];
+    const color2 = types[1] ? typeColors[types[1].type.name] : typeColors.default
+    console.log(color1)
+    pokeImg.style.background = `radial-gradient( ${color2} 33% , ${color1} 33%)`
     pokeImg.style.backgroundSize = '5px 5px'
-    
+    pokeId.textContent = `N° ${id}`;
+    pokeName.textContent = name;
+    setTypes(types)
+    setStats(stats)
 }
 
-const renderPokemonTypes = (types)=>{
+const setTypes = (types) => {
     pokeTypes.innerHTML = '';
     types.forEach(type => {
-        const typeTextElement = document.createElement('div')
-        typeTextElement.style.color = typeColors[type.type.name]
-        typeTextElement.textContent = type.type.name
-        pokeTypes.appendChild(typeTextElement)
+        const typeElementText = document.createElement('div')
+        typeElementText.textContent = type.type.name
+        typeElementText.style.color = typeColors[type.type.name]
+        pokeTypes.appendChild(typeElementText)
     });
+
 }
 
-const renderPokemonStats = (stats) =>{
-    pokeStats.innerHTML = '';
-    stats.forEach(stat =>{
+const setStats = (stats) => {
+    pokeStats.innerHTML = ''
+    stats.forEach(stat => {
         const statElement = document.createElement('div')
-        const statElementName = document.createElement('div')
-        const statElementAmount = document.createElement('div')
-        statElementName.textContent = stat.stat.name
-        statElementAmount.textContent  = stat.base_stat
-        statElement.appendChild	(statElementName)
-        statElement.appendChild(statElementAmount)
-        pokeStats.appendChild(statElement )
+        const statNameElement = document.createElement('div')
+        statNameElement.textContent = stat.stat.name;
+        const statStatElement = document.createElement('div')
+        statStatElement.textContent = stat.base_stat
+        statElement.appendChild(statNameElement)
+        statElement.appendChild(statStatElement)
+        pokeStats.appendChild(statElement)
     })
 }
